@@ -1,4 +1,4 @@
-# Pok-AI-mon Red: Dynamic LLM NPCs 🕹️🤖
+# Pok-AI-mon Red: Dynamic LLM NPCs 
 
 ![Gameplay Demo](demo.gif)
 
