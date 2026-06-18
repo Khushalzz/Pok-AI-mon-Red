@@ -1,5 +1,7 @@
 # Pok-AI-mon Red: Dynamic LLM NPCs 🕹️🤖
 
+![Gameplay Demo](demo.gif)
+
 > [!CAUTION]
 > **COMPATIBILITY WARNING:** This mod strictly requires **Pokémon Red (USA, Europe) v1.0** for the original Game Boy (`.gb`). **It does NOT work with Fire Red (GBA), Blue, or v1.1 revisions.**
 > 
