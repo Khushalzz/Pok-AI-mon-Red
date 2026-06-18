@@ -1,5 +1,12 @@
 # Pok-AI-mon Red: Dynamic LLM NPCs 🕹️🤖
 
+> [!CAUTION]
+> **COMPATIBILITY WARNING:** This mod strictly requires **Pokémon Red (USA, Europe) v1.0** for the original Game Boy (`.gb`). **It does NOT work with Fire Red (GBA), Blue, or v1.1 revisions.**
+> 
+> Your ROM must match these exact checksums to be patched safely:
+> - **MD5:** `3d45c1ee9abd5738df46d2bdda8b57dc`
+> - **SHA-1:** `ea9bcae617fdf159b045185467ae58b2e4a48b9a`
+
 This project hijacks the text engine of the original Game Boy **Pokémon Red** to replace every single NPC dialogue line with dynamic, witty, and contextual text generated on-the-fly by a local Large Language Model (LLM)!
 
 No romhacks required. No pre-rendered text. Real-time LLM inference injected directly into the Game Boy's RAM!
