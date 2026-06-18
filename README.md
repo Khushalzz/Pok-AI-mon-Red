@@ -17,7 +17,7 @@ Everything happens at the emulator level, so here’s how the pipeline plays out
 
 1. **Memory Hijacking (`bridge.lua`)**: This script runs in the mGBA emulator and hooks into the Game Boy’s `TextCommandProcessor`. When an NPC is about to talk, the emulator pauses, grabs the ROM text pointer, and dumps it to a local Python server.
 2. **Text Decoding (`charmap.py`)**: Pokémon Red’s text uses a weird Gen 1 character map, not ASCII. The script converts this hex soup into standard UTF-8 so the AI can read and write it.
-3. **AI Inference (`server.py`)**: The server feeds the sanitized text into a snappy, locally running small language model (think **Qwen2.5-7B**). The AI reads the scene and spits out a brand new, totally original line for the NPC.
+3. **AI Inference (`server.py`)**: The server feeds the sanitized text into a snappy, locally running small language model (think **Qwen2.5-1.5B**). The AI reads the scene and spits out a brand new, totally original line for the NPC.
 4. **Game Boy Word Wrapping**: Since the text box only fits 18 characters per line, the server auto-wraps and injects perfect assembly-level control codes (`0x4F` for line breaks, `0x51` for paragraphs), so you never get stuck or softlock the game.
 5. **Memory Injection**: Once the AI’s response is ready, the system shoves it right back into WRAM, finishing with double `@` (`0x50`) commands to restart the `TextCommandProcessor` and resume your game.
 
@@ -26,7 +26,7 @@ sequenceDiagram
     participant GB as Game Boy RAM
     participant LUA as mGBA (bridge.lua)
     participant PY as Python Server
-    participant AI as Local LLM (Qwen2.5-7B)
+    participant AI as Local LLM (Qwen2.5-1.5B)
     
     Note over GB,AI: First Visit (Logging)
     GB->>LUA: NPC Text Pointer (ROM address)
@@ -55,7 +55,7 @@ sequenceDiagram
 
 To keep things funny and true to Pokémon’s world, this repo comes with a serious fine-tuning setup (even Kaggle-ready) to train a custom LoRA adapter:
 
-- **Hybrid Dataset Generation**: It rewrites all the game’s 1,959 unique strings using a two-model approach. First, it leans on the massive **Llama-3.3-70B** model through the Groq API for top quality. If the API starts throttling, it instantly swaps to a local **Qwen2.5-7B** model running on dual T4 GPUs—no waiting, no hang-ups.
+- **Hybrid Dataset Generation**: It rewrites all the game’s 1,959 unique strings using a two-model approach. First, it leans on the massive **Llama-3.3-70B** model through the Groq API for top quality. If the API starts throttling, it instantly swaps to a local **Qwen2.5-1.5B** model running on dual T4 GPUs—no waiting, no hang-ups.
 - **PokeAPI RAG**: The data pipeline taps into `PokeAPI` for real-time Retrieval-Augmented Generation. Whenever a Pokémon gets mentioned, it grabs fresh elemental typings on the spot and folds them into the AI’s prompt, which keeps the jokes contextually sharp.
 
 ```mermaid
@@ -63,11 +63,11 @@ graph TD
     A[Original Game Boy ROM] -->|Extract| B(1,959 Unique Text Strings)
     B --> C{Hybrid API/Local Generation}
     C -->|High Capacity| D[Groq API: Llama-3.3-70B]
-    C -->|Rate Limit Fallback| E[Dual T4 GPUs: Qwen2.5-7B]
+    C -->|Rate Limit Fallback| E[Dual T4 GPUs: Qwen2.5-1.5B]
     F[(PokeAPI RAG)] -->|Contextual Lore| C
     D --> G(JSON Dataset of AI Jokes)
     E --> G
-    G --> H((Kaggle PEFT LoRA Training on Qwen2.5-7B))
+    G --> H((Kaggle PEFT LoRA Training on Qwen2.5-1.5B))
     H --> I[20MB pokemon_adapter]
 ```
 
