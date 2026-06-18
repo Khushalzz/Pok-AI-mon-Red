@@ -23,12 +23,55 @@ This project intercepts the Game Boy at the emulator level and routes the text t
 4. **Game Boy Word Wrapping**: The Game Boy text box can only fit 18 characters per line. The Python server dynamically word-wraps the AI's response, injecting precise assembly-level control codes (`0x4F` for Line Breaks, `0x51` for Paragraph breaks) to prevent text-engine softlocks.
 5. **Memory Injection**: The perfectly formatted response is forcefully injected back into the Game Boy's WRAM. It is terminated with double `@` (`0x50`) commands to safely resume the `TextCommandProcessor` and unpause the emulator!
 
+```mermaid
+sequenceDiagram
+    participant GB as Game Boy RAM
+    participant LUA as mGBA (bridge.lua)
+    participant PY as Python Server
+    participant AI as Local LLM
+    
+    Note over GB,AI: First Visit (Logging)
+    GB->>LUA: NPC Text Pointer (ROM address)
+    LUA->>PY: Send Original Hex String
+    PY->>PY: Decode to UTF-8
+    PY-->>AI: Queue Text for Generation
+    PY-->>LUA: Queue Miss (Proceed Normally)
+    LUA-->>GB: Unpause & print native text
+    
+    Note over GB,AI: Background Generation
+    AI->>PY: Generated Joke
+    PY->>PY: Word-wrap to 18 chars & Encode Hex
+    
+    Note over GB,AI: Second Visit (Injection)
+    GB->>LUA: NPC Text Pointer Triggered
+    LUA->>PY: Request Hook
+    PY-->>LUA: Return Encoded Hex Array
+    LUA->>GB: Inject CustomHook at padding $D6B8
+    LUA->>GB: Write Hex Array to WRAM Buffer
+    LUA->>GB: Overwrite NPC Pointer to WRAM Buffer
+    LUA-->>GB: Unpause Game Boy
+    Note over GB: Prints AI text via TextCommandProcessor!
+```
+
 ## 🧠 The Training Pipeline
 
 To make the AI funny and lore-accurate, this repository also features an enterprise-grade fine-tuning pipeline designed for Kaggle to train a custom LoRA adapter.
 
 - **Hybrid Dataset Generation**: Uses a dual-model approach to rewrite the game's original 1,959 unique text strings. It aggressively utilizes the massive 70-Billion parameter **Llama-3.3-70B** via the Groq API for maximum quality, and seamlessly falls back to a local **Qwen2.5-7B** model on dual T4 GPUs to bypass strict API rate limits without pausing!
 - **PokeAPI RAG**: The pipeline hooks into `PokeAPI` to perform live Retrieval-Augmented Generation. When it scans Game Boy text, it automatically downloads live elemental typings for any mentioned Pokémon and injects it into the prompt so the AI's jokes are highly context-aware.
+
+```mermaid
+graph TD
+    A[Original Game Boy ROM] -->|Extract| B(1,959 Unique Text Strings)
+    B --> C{Hybrid API/Local Generation}
+    C -->|High Capacity| D[Groq API: Llama-3.3-70B]
+    C -->|Rate Limit Fallback| E[Dual T4 GPUs: Qwen2.5-7B]
+    F[(PokeAPI RAG)] -->|Contextual Lore| C
+    D --> G(JSON Dataset of AI Jokes)
+    E --> G
+    G --> H((PEFT LoRA Training))
+    H --> I[20MB pokemon_adapter]
+```
 
 ## ⚙️ How to Run
 
