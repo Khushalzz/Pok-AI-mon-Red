@@ -1,0 +1,7 @@
+__pycache__/
+venv/
+*.gb
+*.gbc
+*.zip
+pokered-master/
+.DS_Store
