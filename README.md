@@ -9,6 +9,11 @@
 > - **MD5:** `3d45c1ee9abd5738df46d2bdda8b57dc`
 > - **SHA-1:** `ea9bcae617fdf159b045185467ae58b2e4a48b9a`
 
+Tired of clicking through the exact same, repetitive NPC text every single playthrough?
+
+Enter Pok-AI-mon Red.
+
+I integrated AI directly into the game to generate dynamic, fresh, and completely unique NPC dialogue. Say goodbye to the boring scripts and hello to a living, breathing Kanto!
 What’s happening here? This project replaces every NPC dialogue line in the original Game Boy Pokémon Red with witty, on-the-fly text generated locally by a Large Language Model (LLM). No need for romhacks or pre-rendered text. All the LLM magic runs in real-time, injecting new lines right into the Game Boy’s RAM.
 
 ## 🚀 How It Works
